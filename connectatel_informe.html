@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConnectaTel — Análisis de Clientes 2024</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00e5ff;
+    --accent2: #ff6b6b;
+    --accent3: #ffe066;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --border: #1e2d45;
+    --premium: #a78bfa;
+    --basico: #34d399;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.07) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+  }
+  .hero-tag {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    display: inline-block;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub {
+    font-size: 1.2rem;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 560px;
+    margin: 0 auto 48px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 52px;
+  }
+  .hstat {
+    text-align: center;
+  }
+  .hstat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .hstat-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 6px;
+  }
+  .scroll-cta {
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: bounce 2s infinite;
+  }
+  .scroll-arrow { font-size: 1.4rem; }
+  @keyframes bounce {
+    0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)}
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,26,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 0;
+    align-items: center;
+    height: 52px;
+    overflow-x: auto;
+  }
+  nav a {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 18px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover, nav a.active { color: var(--accent); border-color: var(--accent); }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text);
+    margin-right: 16px;
+    white-space: nowrap;
+  }
+
+  /* MAIN LAYOUT */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header {
+    margin-bottom: 48px;
+  }
+  .section-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .section-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 620px;
+  }
+
+  /* CARDS */
+  .cards { display: grid; gap: 20px; }
+  .cards-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .cards-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-accent {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--premium));
+  }
+  .card-icon { font-size: 2rem; margin-bottom: 14px; }
+  .card-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .card-label { font-size: 0.88rem; color: var(--muted); font-weight: 400; }
+  .card-desc { font-size: 0.92rem; color: var(--text); margin-top: 10px; }
+
+  /* CHART CONTAINERS */
+  .chart-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .chart-wrap h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+  .chart-caption {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  .chart-wrap canvas { max-height: 320px; }
+
+  .two-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px,1fr)); gap: 24px; }
+
+  /* INSIGHT BOX */
+  .insight {
+    background: rgba(0,229,255,0.06);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 20px;
+    font-size: 0.93rem;
+    color: var(--text);
+  }
+  .insight strong { color: var(--accent); }
+
+  /* STORY SECTION */
+  .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media(max-width: 700px){ .story-grid { grid-template-columns: 1fr; } }
+  .story-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: sticky;
+    top: 70px;
+  }
+  .story-step {
+    cursor: pointer;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    color: inherit;
+    transition: all .2s;
+    background: var(--surface);
+  }
+  .story-step:hover, .story-step.active {
+    background: rgba(0,229,255,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .story-para {
+    display: none;
+    animation: fadeIn .4s ease;
+  }
+  .story-para.visible { display: block; }
+  @keyframes fadeIn { from {opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .story-para h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+  .story-para p { color: var(--muted); font-size: 0.97rem; margin-bottom: 16px; }
+  .story-para p strong { color: var(--text); }
+  .highlight-box {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 10px 10px 0;
+    margin: 20px 0;
+    font-size: 0.92rem;
+  }
+
+  /* COMPARE */
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  @media(max-width:600px){ .compare-row { grid-template-columns: 1fr; } }
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .compare-card.premium { border-color: var(--premium); }
+  .compare-card.basico { border-color: var(--basico); }
+  .plan-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .plan-badge.premium { background: rgba(167,139,250,0.15); color: var(--premium); }
+  .plan-badge.basico { background: rgba(52,211,153,0.15); color: var(--basico); }
+  .compare-metric { margin-bottom: 14px; }
+  .compare-metric-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .compare-metric-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .compare-metric-val.premium { color: var(--premium); }
+  .compare-metric-val.basico { color: var(--basico); }
+
+  /* RANKING TABLE */
+  .rank-table { width: 100%; border-collapse: collapse; }
+  .rank-table th {
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .rank-table td {
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+  }
+  .rank-table tr:hover td { background: rgba(0,229,255,0.03); }
+  .rank-num { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--muted); }
+  .rank-bar-bg { background: var(--border); border-radius: 4px; height: 6px; margin-top: 4px; }
+  .rank-bar { height: 6px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--premium)); }
+  .badge-premium { color: var(--premium); font-size: 0.78rem; font-weight: 600; }
+  .badge-basico { color: var(--basico); font-size: 0.78rem; font-weight: 600; }
+
+  /* FOOTER */
+  footer {
+    padding: 48px 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  footer strong { color: var(--text); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tab-btn:hover, .tab-btn.active {
+    background: rgba(0,229,255,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-tag">📊 Proyecto Integrador · Storytelling con Datos</div>
+  <h1>Clientes<br><span>ConnectaTel</span></h1>
+  <p class="hero-sub">¿Qué segmentos son más valiosos y qué patrones de uso los caracterizan? Un análisis completo para el equipo directivo.</p>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-num">4,000</div><div class="hstat-label">Clientes totales</div></div>
+    <div class="hstat"><div class="hstat-num">3,534</div><div class="hstat-label">Clientes activos</div></div>
+    <div class="hstat"><div class="hstat-num">40,000</div><div class="hstat-label">Eventos de uso</div></div>
+    <div class="hstat"><div class="hstat-num">11.7%</div><div class="hstat-label">Tasa de churn</div></div>
+  </div>
+  <div class="scroll-cta"><span>Desplázate para explorar</span><span class="scroll-arrow">↓</span></div>
+</header>
+
+<nav id="main-nav" aria-label="Navegación principal">
+  <span class="nav-logo">ConnectaTel</span>
+  <a href="#resumen">Resumen</a>
+  <a href="#planes">Por Plan</a>
+  <a href="#ciudades">Ciudades</a>
+  <a href="#comparativa">Comparativa</a>
+  <a href="#ranking">Ranking</a>
+  <a href="#historia">Historia</a>
+  <a href="#conclusiones">Conclusiones</a>
+</nav>
+
+<main>
+
+<!-- SECTION 1: RESUMEN -->
+<section id="resumen">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">01 — Visión general</span>
+      <h2 class="section-title">El panorama de ConnectaTel</h2>
+      <p class="section-desc">Un vistazo rápido a los datos clave que definen la base de clientes de la empresa.</p>
+    </div>
+    <div class="cards cards-3">
+      <div class="card">
+        <div class="card-accent"></div>
+        <div class="card-icon">📱</div>
+        <div class="card-num">22,092</div>
+        <div class="card-label">Mensajes de texto registrados</div>
+        <div class="card-desc">55% del total de eventos, lo que los convierte en el tipo de interacción más frecuente.</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(90deg,var(--accent2),var(--accent3))"></div>
+        <div class="card-icon">📞</div>
+        <div class="card-num">17,908</div>
+        <div class="card-label">Llamadas registradas</div>
+        <div class="card-desc">45% del total de eventos. Los clientes Premium promedian 23.3 minutos mensuales en llamadas.</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:linear-gradient(90deg,var(--premium),var(--accent))"></div>
+        <div class="card-icon">💰</div>
+        <div class="card-num">$75,950</div>
+        <div class="card-label">Ingresos totales estimados (USD)</div>
+        <div class="card-desc">Ingreso promedio de $19.02 por cliente. Los Premium aportan el 49.8% del total pese a ser solo el 35.1%.</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap" style="margin-top:24px">
+      <h3>Distribución de eventos de uso por tipo</h3>
+      <p class="chart-caption">Total de 40,000 eventos — texto vs. llamadas</p>
+      <canvas id="chartEventos"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: POR PLAN -->
+<section id="planes">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">02 — Segmentación por plan</span>
+      <h2 class="section-title">Plan Básico vs. Plan Premium</h2>
+      <p class="section-desc">El plan es el primer corte analítico. Aunque los clientes Básico son más numerosos, los Premium generan casi el doble de ingreso por cabeza.</p>
+    </div>
+
+    <div class="two-charts">
+      <div class="chart-wrap">
+        <h3>Ingreso promedio por plan (USD)</h3>
+        <p class="chart-caption">Ingreso total estimado incluyendo tarifas base y excedentes</p>
+        <canvas id="chartRevPlan"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <h3>Número de clientes por plan</h3>
+        <p class="chart-caption">Distribución de la base total de 4,000 clientes</p>
+        <canvas id="chartClientesPlan"></canvas>
+      </div>
+    </div>
+
+    <div class="insight">
+      💡 <strong>Hallazgo clave:</strong> El plan Premium genera <strong>$26.91 USD</strong> por cliente vs. <strong>$14.70 USD</strong> del plan Básico — una diferencia del <strong>83%</strong>. Sin embargo, los clientes Básico son 1.85× más numerosos, lo que los hace igualmente relevantes en volumen de ingresos agregados (<strong>$38,145 vs $37,805</strong>).
+    </div>
+
+    <div class="two-charts" style="margin-top:24px">
+      <div class="chart-wrap">
+        <h3>Minutos de llamada promedio por plan</h3>
+        <p class="chart-caption">Uso promedio mensual de minutos en llamadas</p>
+        <canvas id="chartMinutosPlan"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <h3>Tasa de churn por plan (%)</h3>
+        <p class="chart-caption">Porcentaje de clientes que cancelaron el servicio</p>
+        <canvas id="chartChurn"></canvas>
+      </div>
+    </div>
+
+    <div class="insight">
+      💡 <strong>Sobre el churn:</strong> La tasa de abandono es muy similar entre planes (<strong>Básico: 11.5%</strong> — <strong>Premium: 12.0%</strong>). Esto indica que el precio no es el principal factor de cancelación, y que el problema puede estar en la calidad del servicio o la experiencia del cliente.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: CIUDADES -->
+<section id="ciudades">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">03 — Distribución geográfica</span>
+      <h2 class="section-title">¿De dónde vienen nuestros clientes?</h2>
+      <p class="section-desc">ConnectaTel opera en 6 ciudades de Latinoamérica. Bogotá es la ciudad con más clientes, pero Cali lidera en ingreso promedio.</p>
+    </div>
+
+    <div class="two-charts">
+      <div class="chart-wrap">
+        <h3>Clientes por ciudad</h3>
+        <p class="chart-caption">Número total de clientes registrados por ciudad</p>
+        <canvas id="chartClientesCiudad"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <h3>Ingreso promedio por ciudad (USD)</h3>
+        <p class="chart-caption">Promedio del ingreso total estimado por cliente en cada ciudad</p>
+        <canvas id="chartRevCiudad"></canvas>
+      </div>
+    </div>
+
+    <div class="insight">
+      💡 <strong>Sorpresa geográfica:</strong> Cali lidera el ingreso promedio con <strong>$19.33 USD</strong>, seguida de Medellín (<strong>$19.08</strong>) y Bogotá (<strong>$19.02</strong>). La diferencia entre ciudades es modesta (menos de $0.70 USD), lo que sugiere un comportamiento de uso bastante homogéneo en toda la región.
+    </div>
+
+    <div class="chart-wrap" style="margin-top:24px">
+      <h3>Minutos promedio de llamadas por ciudad</h3>
+      <p class="chart-caption">Comparación del uso de voz entre ciudades</p>
+      <canvas id="chartMinutosCiudad"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: COMPARATIVA -->
+<section id="comparativa">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">04 — Comparativa de segmentos</span>
+      <h2 class="section-title">Básico vs. Premium cara a cara</h2>
+      <p class="section-desc">Estadísticas descriptivas comparadas entre los dos planes para identificar diferencias y similitudes significativas.</p>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-card premium">
+        <span class="plan-badge premium">Premium</span>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Ingreso promedio</div>
+          <div class="compare-metric-val premium">$26.91</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Minutos promedio</div>
+          <div class="compare-metric-val premium">23.3 min</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Mensajes promedio</div>
+          <div class="compare-metric-val premium">5.52</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Tasa de churn</div>
+          <div class="compare-metric-val premium">12.0%</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Total clientes</div>
+          <div class="compare-metric-val premium">1,405</div>
+        </div>
+      </div>
+      <div class="compare-card basico">
+        <span class="plan-badge basico">Básico</span>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Ingreso promedio</div>
+          <div class="compare-metric-val basico">$14.70</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Minutos promedio</div>
+          <div class="compare-metric-val basico">22.6 min</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Mensajes promedio</div>
+          <div class="compare-metric-val basico">5.53</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Tasa de churn</div>
+          <div class="compare-metric-val basico">11.5%</div>
+        </div>
+        <div class="compare-metric">
+          <div class="compare-metric-label">Total clientes</div>
+          <div class="compare-metric-val basico">2,595</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      💡 <strong>Diferencia más significativa:</strong> Los ingresos difieren en un <strong>83%</strong> entre planes, mientras que el uso en minutos y mensajes es prácticamente <strong>idéntico</strong> (22.6 vs 23.3 min; 5.53 vs 5.52 mensajes). Esto revela que el mayor ingreso del plan Premium proviene casi exclusivamente de la <strong>tarifa base mensual</strong>, no de mayor consumo. Los clientes de alto valor operativo en el plan Premium pagan más por el mismo nivel de uso.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: RANKING -->
+<section id="ranking">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">05 — Ranking de ciudades</span>
+      <h2 class="section-title">Top y Bottom 5 por ingreso promedio</h2>
+      <p class="section-desc">Ordenado por ingreso promedio de clientes. Dado que hay solo 6 ciudades en el dataset, se muestran todas.</p>
+    </div>
+
+    <div class="chart-wrap">
+      <table class="rank-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ciudad</th>
+            <th>Ingreso promedio (USD)</th>
+            <th>Min. promedio</th>
+            <th>Mensajes promedio</th>
+          </tr>
+        </thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      💡 <strong>Interpretación del ranking:</strong> La variación entre la ciudad top (Cali, <strong>$19.33</strong>) y la última (MTY, <strong>$18.64</strong>) es de apenas <strong>$0.69 USD</strong>. Esto sugiere que el nivel de ingresos es consistente en toda la red — no hay una ciudad con comportamiento atípico que justifique estrategias radicalmente distintas por geografía.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: HISTORIA -->
+<section id="historia">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">06 — Storytelling</span>
+      <h2 class="section-title">La historia de los clientes<br>de ConnectaTel</h2>
+      <p class="section-desc">Cuatro capítulos que cuentan qué encontramos en los datos. Navega la historia usando los controles de la izquierda.</p>
+    </div>
+
+    <div class="story-grid">
+      <div class="story-sidebar">
+        <div class="story-steps">
+          <button class="story-step active" type="button" aria-label="Capítulo 1" onclick="showStory(0)">📍 Capítulo 1<br><small>El punto de partida</small></button>
+          <button class="story-step" type="button" aria-label="Capítulo 2" onclick="showStory(1)">🏆 Capítulo 2<br><small>Los clientes más valiosos</small></button>
+          <button class="story-step" type="button" aria-label="Capítulo 3" onclick="showStory(2)">🤔 Capítulo 3<br><small>La paradoja del uso</small></button>
+          <button class="story-step" type="button" aria-label="Capítulo 4" onclick="showStory(3)">🔭 Capítulo 4<br><small>Lo que nos dicen los datos</small></button>
+        </div>
+      </div>
+
+      <div class="story-content">
+        <div class="story-para visible" id="story-0">
+          <h4>ConnectaTel: cuatro mil historias de conexión</h4>
+          <p>Imagínate que tienes <strong>4,000 vecinos</strong> y todos tienen un teléfono de tu empresa. Eso es ConnectaTel. De esos 4,000 clientes, <strong>3,534 siguen activos</strong> hoy — solo el 11.7% se fue. No está mal, ¿verdad? Significa que casi 9 de cada 10 personas que llegaron, se quedaron.</p>
+          <p>Estos 4,000 clientes generaron <strong>40,000 eventos de uso</strong> en el período analizado: llamadas y mensajes de texto. El tipo de evento más común fue enviar un mensaje (<strong>22,092 textos</strong>), mientras que las llamadas sumaron <strong>17,908</strong>. En otras palabras: nuestros clientes prefieren escribir antes que hablar. ¿Curioso, no?</p>
+          <div class="highlight-box">
+            📊 <strong>El dato que sorprende:</strong> La empresa opera en <strong>6 ciudades</strong> de Latinoamérica: Bogotá, Medellín, Cali, CDMX, GDL y MTY. La más grande en número de clientes es Bogotá con <strong>808 clientes</strong>, pero la más rentable por persona es Cali con un ingreso promedio de <strong>$19.33 USD mensuales</strong>.
+          </div>
+        </div>
+
+        <div class="story-para" id="story-1">
+          <h4>Los clientes Premium: menos pero más valiosos</h4>
+          <p>ConnectaTel tiene dos tipos de clientes: los del plan <strong>Básico</strong> (2,595 personas, el 65%) y los del plan <strong>Premium</strong> (1,405 personas, el 35%). A primera vista, los Básico ganan por cantidad. Pero cuando miramos el dinero que genera cada uno, la historia cambia.</p>
+          <p>Un cliente Premium deja en promedio <strong>$26.91 USD por mes</strong>. Un cliente Básico, <strong>$14.70 USD</strong>. La diferencia es del <strong>83%</strong>. Dicho de otra forma: cada cliente Premium vale casi lo mismo que dos clientes Básico juntos.</p>
+          <div class="highlight-box">
+            💼 Los clientes de alto valor operativo en el segmento Premium, aunque representan solo el <strong>35.1%</strong> de la base de usuarios, contribuyen con el <strong>49.8% de los ingresos totales</strong> estimados (<strong>$37,805 USD</strong> de un total de $75,950 USD). Son el motor financiero de ConnectaTel.
+          </div>
+          <p>El top 5 de clientes más rentables individuales son todos usuarios Premium, concentrados principalmente en GDL y Bogotá, con ingresos que superan los <strong>$34 USD mensuales</strong>.</p>
+        </div>
+
+        <div class="story-para" id="story-2">
+          <h4>La gran paradoja: mismo uso, diferente precio</h4>
+          <p>Aquí viene la parte más interesante — y un poco desconcertante. Si comparamos cuánto <em>usan</em> el servicio los clientes Premium y los Básico, la respuesta es: <strong>casi exactamente lo mismo</strong>.</p>
+          <p>Los Premium hacen en promedio <strong>23.3 minutos</strong> de llamadas. Los Básico hacen <strong>22.6 minutos</strong>. Los Premium envían <strong>5.52 mensajes</strong>. Los Básico envían <strong>5.53 mensajes</strong>. ¡Prácticamente idéntico!</p>
+          <div class="highlight-box">
+            🤔 <strong>Conclusión sorprendente:</strong> La diferencia de <strong>$12.21 USD por mes</strong> entre planes no se explica por mayor consumo. Proviene casi exclusivamente de la <strong>tarifa base mensual más alta del plan Premium</strong>. Los clientes Premium pagan más, no porque usen más, sino porque <em>eligieron</em> el plan más caro — o fueron migrados a él.
+          </div>
+          <p>Además, la tasa de churn es casi igual: <strong>11.5% en Básico</strong> y <strong>12.0% en Premium</strong>. El abandono no está relacionado con el precio del plan.</p>
+        </div>
+
+        <div class="story-para" id="story-3">
+          <h4>Lo que los datos nos están pidiendo</h4>
+          <p>Después de analizar 40,000 eventos de uso, 4,000 perfiles de clientes y seis ciudades, los datos cuentan una historia clara: <strong>ConnectaTel tiene una base de clientes sana pero con oportunidades sin explotar.</strong></p>
+          <p>El hecho de que Premium y Básico usen el servicio de manera casi idéntica sugiere que hay una gran cantidad de clientes Básico que <strong>podrían migrar a Premium</strong> sin cambiar sus hábitos — simplemente eligiendo un plan de mayor valor.</p>
+          <div class="highlight-box">
+            🔭 <strong>3 acciones concretas que sugieren los datos:</strong><br><br>
+            1. <strong>Campaña de migración Básico → Premium:</strong> Con un impacto potencial de +$12 USD por cliente migrado y 2,595 candidatos, el potencial de ingresos es enorme.<br><br>
+            2. <strong>Programa de retención universal:</strong> El churn del 11.7% es similar en ambos planes — el problema no es el precio sino la experiencia. Hay que investigar por qué se van.<br><br>
+            3. <strong>Foco en Bogotá:</strong> Con 808 clientes activos, es el mercado más grande. Una mejora del 1% en retención allí equivale a retener ~8 clientes adicionales.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: CONCLUSIONES -->
+<section id="conclusiones">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">07 — Conclusiones</span>
+      <h2 class="section-title">Decisiones basadas en datos</h2>
+      <p class="section-desc">Resumen ejecutivo de los hallazgos y recomendaciones concretas para el equipo directivo.</p>
+    </div>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <div class="card-accent" style="background:var(--premium)"></div>
+        <div class="card-icon">🎯</div>
+        <div class="card-num" style="color:var(--premium)">+83%</div>
+        <div class="card-label">Diferencia de ingreso Premium vs Básico</div>
+        <div class="card-desc">El segmento Premium es el más valioso por cliente individual. Priorizar su captación y retención es estratégicamente crítico.</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:var(--basico)"></div>
+        <div class="card-icon">📈</div>
+        <div class="card-num" style="color:var(--basico)">2,595</div>
+        <div class="card-label">Clientes Básico con potencial de migración</div>
+        <div class="card-desc">Dado que usan el servicio igual que los Premium, son candidatos ideales para una campaña de upselling bien diseñada.</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:var(--accent3)"></div>
+        <div class="card-icon">⚠️</div>
+        <div class="card-num" style="color:var(--accent3)">11.7%</div>
+        <div class="card-label">Tasa de churn general</div>
+        <div class="card-desc">Similar en ambos planes. La causa del abandono no es el precio — hay que investigar calidad de servicio y satisfacción del cliente.</div>
+      </div>
+      <div class="card">
+        <div class="card-accent" style="background:var(--accent2)"></div>
+        <div class="card-icon">🌎</div>
+        <div class="card-num" style="color:var(--accent2)">6 ciudades</div>
+        <div class="card-label">Cobertura geográfica homogénea</div>
+        <div class="card-desc">El ingreso por ciudad varía menos de $0.70 USD. No se justifican estrategias diferenciadas por geografía en este momento.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <p>Análisis realizado para <strong>ConnectaTel</strong> · Proyecto Integrador — Storytelling con Datos · 2024</p>
+    <p style="margin-top:8px; font-size:0.78rem">Dataset: 4,000 usuarios · 40,000 eventos de uso · 6 ciudades de Latinoamérica</p>
+  </div>
+</footer>
+
+<script>
+// ---- CHART DEFAULTS ----
+Chart.defaults.color = '#6b7a99';
+Chart.defaults.font.family = 'DM Sans';
+
+const accentBlue = '#00e5ff';
+const accentPurple = '#a78bfa';
+const accentGreen = '#34d399';
+const accentRed = '#ff6b6b';
+const accentYellow = '#ffe066';
+const surface2 = '#1a2235';
+
+// ---- 1. EVENTOS PIE ----
+new Chart(document.getElementById('chartEventos'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Mensajes de texto', 'Llamadas'],
+    datasets: [{
+      data: [22092, 17908],
+      backgroundColor: [accentBlue, accentPurple],
+      borderWidth: 0,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 20, font: { size: 13 } } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} (${(ctx.raw/40000*100).toFixed(1)}%)` } }
+    }
+  }
+});
+
+// ---- 2. REVENUE BY PLAN (bar) ----
+new Chart(document.getElementById('chartRevPlan'), {
+  type: 'bar',
+  data: {
+    labels: ['Básico', 'Premium'],
+    datasets: [{
+      label: 'Ingreso promedio (USD)',
+      data: [14.70, 26.91],
+      backgroundColor: [accentGreen, accentPurple],
+      borderRadius: 8,
+      borderWidth: 0
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { callback: v => '$' + v } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ---- 3. CLIENTS BY PLAN (doughnut) ----
+new Chart(document.getElementById('chartClientesPlan'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Básico (65%)', 'Premium (35%)'],
+    datasets: [{
+      data: [2595, 1405],
+      backgroundColor: [accentGreen, accentPurple],
+      borderWidth: 0,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 20, font: { size: 13 } } }
+    }
+  }
+});
+
+// ---- 4. MINUTES BY PLAN ----
+new Chart(document.getElementById('chartMinutosPlan'), {
+  type: 'bar',
+  data: {
+    labels: ['Básico', 'Premium'],
+    datasets: [{
+      label: 'Minutos promedio',
+      data: [22.57, 23.31],
+      backgroundColor: [accentGreen, accentPurple],
+      borderRadius: 8, borderWidth: 0
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 20, ticks: { callback: v => v + ' min' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ---- 5. CHURN BY PLAN ----
+new Chart(document.getElementById('chartChurn'), {
+  type: 'bar',
+  data: {
+    labels: ['Básico', 'Premium'],
+    datasets: [{
+      label: 'Tasa de churn (%)',
+      data: [11.5, 12.0],
+      backgroundColor: [accentYellow, accentRed],
+      borderRadius: 8, borderWidth: 0
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 0, max: 20, ticks: { callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ---- 6. CLIENTS BY CITY ----
+const cities = ['Bogotá','CDMX','Medellín','GDL','Cali','MTY'];
+const clientCount = [808, 730, 616, 450, 424, 407];
+const cityColors = [accentBlue, accentPurple, accentGreen, accentYellow, accentRed, '#60a5fa'];
+
+new Chart(document.getElementById('chartClientesCiudad'), {
+  type: 'bar',
+  data: {
+    labels: cities,
+    datasets: [{ label: 'Clientes', data: clientCount, backgroundColor: cityColors, borderRadius: 8, borderWidth: 0 }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ---- 7. REVENUE BY CITY ----
+const cityRevenue = [19.33, 19.08, 19.02, 18.93, 18.93, 18.64];
+const citiesByRev = ['Cali','Medellín','Bogotá','GDL','CDMX','MTY'];
+
+new Chart(document.getElementById('chartRevCiudad'), {
+  type: 'bar',
+  data: {
+    labels: citiesByRev,
+    datasets: [{ label: 'Ingreso promedio (USD)', data: cityRevenue, backgroundColor: cityColors, borderRadius: 8, borderWidth: 0 }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 18, ticks: { callback: v => '$' + v } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ---- 8. MINUTES BY CITY ----
+const cityMinutes = [22.25, 23.65, 22.70, 22.32, 24.09, 22.56];
+const citiesForMin = ['Cali','Medellín','Bogotá','CDMX','GDL','MTY'];
+
+new Chart(document.getElementById('chartMinutosCiudad'), {
+  type: 'bar',
+  data: {
+    labels: citiesForMin,
+    datasets: [{ label: 'Min promedio', data: cityMinutes, backgroundColor: cityColors, borderRadius: 8, borderWidth: 0 }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 20, ticks: { callback: v => v + ' min' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ---- RANKING TABLE ----
+const rankData = [
+  { rank: 1, city: 'Cali', rev: 19.33, min: 22.25, msg: 5.53 },
+  { rank: 2, city: 'Medellín', rev: 19.08, min: 23.65, msg: 5.44 },
+  { rank: 3, city: 'Bogotá', rev: 19.02, min: 22.70, msg: 5.62 },
+  { rank: 4, city: 'GDL', rev: 18.93, min: 24.09, msg: 5.37 },
+  { rank: 5, city: 'CDMX', rev: 18.93, min: 22.32, msg: 5.59 },
+  { rank: 6, city: 'MTY', rev: 18.64, min: 22.56, msg: 5.41 },
+];
+const tbody = document.getElementById('rankBody');
+const maxRev = 19.33;
+rankData.forEach(r => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="rank-num">#${r.rank}</span></td>
+    <td>${r.city}</td>
+    <td>
+      <strong>$${r.rev.toFixed(2)}</strong>
+      <div class="rank-bar-bg"><div class="rank-bar" style="width:${(r.rev/maxRev*100).toFixed(1)}%"></div></div>
+    </td>
+    <td>${r.min.toFixed(2)} min</td>
+    <td>${r.msg.toFixed(2)} msgs</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// ---- STORY NAV ----
+function showStory(idx) {
+  document.querySelectorAll('.story-para').forEach((el, i) => {
+    el.classList.toggle('visible', i === idx);
+  });
+  document.querySelectorAll('.story-step').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+}
+
+// ---- ACTIVE NAV ----
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 80) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>
